@@ -1,0 +1,66 @@
+This project is intended to demonstrate duel core programming with global
+variables which make actions in any core conditional. Either core can set
+the global variables so one core can dictate what the other core can do.
+I plan to have Core0 run BLE server code, connect to a BLE Smartphone, receive commands and manage the state of the process. Core1 will be carrying out the actions on stepper motors and 
+dc motors as dictated by the statemachine on Core0.
+
+This demo has two LEDs set up with current limiting resistors. I used GPIO 26,27 to drive the LEDs, one was Green and the other Red. I pinned the Tasks to the cores in the setup() method. I created the two methods to carry out the task belonging to them: Task1code, Task2code, Task1code(Core0) blinked the green LED at 2000 ms pulses. Core1 blinked the Red LED at 200 ms pulses. So there were 10 Red LED flashes per 1 Green LED flash.
+I then set up a volitile boolean called holdupRed:
+    volatile bool holdupRed = false;
+I toggled the value of this boolean every 10 Green pulses:
+     for (;;)
+ {
+   cnt++;
+   if (cnt % 10 == 0)
+   {
+     holdupRed = !holdupRed;
+   }
+   ...
+
+I used the global boolean holdupRed to bypass the Flashing of the Red LED.
+Result as Seen on the Serial Monitor:
+ 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1   //10 Red flashes for each Green Flash
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+g:0
+Holding up Red Blinking
+ 
+g:0
+                //No red flashes because of global boolean.
+g:0
+ 
+g:0
+ 
+g:0
+ 
+g:0
+ 
+g:0
+ 
+g:0
+ 
+g:0
+ 
+g:0
+ 
+g:0
+r:1r:1r:1r:1r:1r:1r:1r:1r:1r:1 
+
